@@ -11,10 +11,10 @@ data:
     dynamic_resources:
       lds_config:
         resource_api_version: V3
-        path: /etc/envoy/lds.yaml
+        path_config_source: /etc/envoy/lds.yaml
       cds_config:
         resource_api_version: V3
-        path: /etc/envoy/cds.yaml
+        path_config_source: /etc/envoy/cds.yaml
 
     admin:
       address:
