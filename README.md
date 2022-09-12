@@ -1,2 +1,2 @@
-# kindergarten
+# kind(ergarten)
 kind playground
