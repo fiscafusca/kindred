@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-cds
+data:
+  cds.yaml: |-
+    resources:
+    - "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+      name: echo-server
+      connect_timeout: 30s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: echo-server
+        endpoints:
+        - lb_endpoints:
+          - endpoint:
+              address:
+                socket_address:
+                  address: echo-server
+                  port_value: 8080
+    - "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+      name: sloth-service
+      connect_timeout: 30s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: sloth-service
+        endpoints:
+        - lb_endpoints:
+          - endpoint:
+              address:
+                socket_address:
+                  address: sloth-service
+                  port_value: 8081

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: envoyproxy/envoy:v1.21.1
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: 100Mi
+              cpu: 100m
+            requests:
+              memory: 100Mi
+              cpu: 100m
+          args:
+            - "-c"
+            - "/etc/envoy/envoy.yaml"
+            - "-l"
+            - "debug"  
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              httpHeaders:
+              - name: x-envoy-livenessprobe
+                value: healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /healthz
+              httpHeaders:
+              - name: x-envoy-livenessprobe
+                value: healthz
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "curl http://localhost:9901/healthcheck/fail; /bin/sleep 30;"]
+          volumeMounts:
+          - name: envoy-conf
+            mountPath: /etc/envoy
+      volumes:
+      - name: envoy-conf
+        projected:
+          sources:
+          - configMap:
+              name: envoy
+          - configMap:
+              name: envoy-cds
+          - configMap:
+              name: envoy-lds
