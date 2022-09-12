@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: envoyproxy/envoy:v1.22.0
+          image: envoyproxy/envoy:v1.23.0
           imagePullPolicy: Always
           resources:
             limits:
@@ -27,7 +27,7 @@ spec:
             - "-c"
             - "/etc/envoy/envoy.yaml"
             - "-l"
-            - "debug"  
+            - "warn"  
           readinessProbe:
             httpGet:
               path: /healthz

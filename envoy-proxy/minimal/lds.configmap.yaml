@@ -108,6 +108,21 @@ data:
                     cluster: echo-server
                     timeout: 0s
                     idle_timeout: 15s
+                  request_headers_to_add:
+                  - header:
+                      key: "x-route-match"
+                      value: "path"
+                - match:
+                    safe_regex: 
+                      regex: "^/echo/regex/[^/]+/test/$"
+                  route:
+                    cluster: echo-server
+                    timeout: 0s
+                    idle_timeout: 15s
+                  request_headers_to_add:
+                  - header:
+                      key: "x-route-match"
+                      value: "regex"
                 - match:
                     path: "/sloth"
                   route:
@@ -126,34 +141,41 @@ data:
                 - name: "x-envoy-livenessprobe"
                   string_match:
                     exact: "healthz"
+            - name: envoy.filters.http.lua
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+                default_source_code:
+                  inline_string: |-
+                    function envoy_on_request(request_handle)
+                      request_handle:headers():add("x-lua-hello", "HelloLua")
+                    end
+                    function envoy_on_response(response_handle)
+                    end
             - name: envoy.filters.http.compressor
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
-                content_length: 100
-                content_type:
-                - text/plain
-                - text/xml
-                - text/css
-                - text/javascript
-                - application/json
-                - application/xml
-                - application/javascript
-                - application/x-javascript
-                - application/vnd.ms-fontobject
-                - application/x-font-ttf
-                - application/x-font-opentype
-                - application/x-font-truetype
-                - font/eot
-                - font/otf
-                - font/opentype
-                - image/svg+xml
-                - image/vnd.microsoft.icon
-                disable_on_etag_header: false
-                request_direction_config:
+                response_direction_config:
                   common_config:
-                    enabled:
-                      default_value: false
-                      runtime_key: request_compressor_enabled
+                    min_content_length: 1024
+                    content_type:
+                    - text/plain
+                    - text/xml
+                    - text/css
+                    - text/javascript
+                    - application/json
+                    - application/xml
+                    - application/javascript
+                    - application/x-javascript
+                    - application/vnd.ms-fontobject
+                    - application/x-font-ttf
+                    - application/x-font-opentype
+                    - application/x-font-truetype
+                    - font/eot
+                    - font/otf
+                    - font/opentype
+                    - image/svg+xml
+                    - image/vnd.microsoft.icon
+                  disable_on_etag_header: false
                 compressor_library:
                   name: text_optimized
                   typed_config:
@@ -167,7 +189,7 @@ data:
                 "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
                 response_direction_config:
                   common_config:
-                    min_content_length: 100
+                    min_content_length: 1024
                     content_type:
                     - text/plain
                     - text/xml
@@ -187,11 +209,6 @@ data:
                     - image/svg+xml
                     - image/vnd.microsoft.icon
                   disable_on_etag_header: true
-                request_direction_config:
-                  common_config:
-                    enabled:
-                      default_value: false
-                      runtime_key: request_compressor_enabled
                 compressor_library:
                   name: text_optimized
                   typed_config:

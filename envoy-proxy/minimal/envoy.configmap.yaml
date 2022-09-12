@@ -11,10 +11,12 @@ data:
     dynamic_resources:
       lds_config:
         resource_api_version: V3
-        path_config_source: /etc/envoy/lds.yaml
+        path_config_source: 
+          path: /etc/envoy/lds.yaml
       cds_config:
         resource_api_version: V3
-        path_config_source: /etc/envoy/cds.yaml
+        path_config_source: 
+          path: /etc/envoy/cds.yaml
 
     admin:
       address:
@@ -22,4 +24,11 @@ data:
           protocol: TCP
           address: 0.0.0.0
           port_value: 9901
+
+    layered_runtime:
+      layers:
+      - name: static_layer
+        static_layer:
+          overload:
+            global_downstream_max_connections: 4096
 
