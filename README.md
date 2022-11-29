@@ -1,3 +1,3 @@
-# kind(ergarten)
+# kindred
 
 kind playground
