@@ -1,0 +1,15 @@
+grafana:
+  adminUser: kindredadmin
+  adminPassword: kindredpwd
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Loki
+        type: loki
+        url: http://loki-gateway.loki
+        access: proxy
+        jsonData:
+          httpHeaderName1: X-Scope-OrgID
+        secureJsonData:
+          httpHeaderValue1: kindred
