@@ -32,13 +32,8 @@ loki:
         tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
       
       memberlist:
-        abort_if_cluster_join_fails: false
-        bind_port: 7946
         join_members:
-        - loki-gossip-ring.loki.svc.cluster.local:7946
-        max_join_backoff: 1m
-        max_join_retries: 10
-        min_join_backoff: 1s
+        - {{ include "loki.fullname" . }}-memberlist
 
       schema_config:
         configs:
