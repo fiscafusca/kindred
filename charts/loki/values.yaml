@@ -1,0 +1,65 @@
+loki:
+  loki:
+    config: |
+      auth_enabled: false
+
+      server:
+        http_listen_port: 3100
+
+      distributor:
+        ring:
+          kvstore:
+            store: memberlist
+
+      ingester:
+        lifecycler:
+          ring:
+            kvstore:
+              store: memberlist
+            replication_factor: 1
+        chunk_idle_period: 5m
+        chunk_retain_period: 1m
+        max_chunk_age: 10h
+        max_transfer_retries: 0
+        wal:
+          dir: /var/loki/wal
+
+      frontend_worker:
+        frontend_address: {{ include "loki.queryFrontendFullname" . }}:9095
+      frontend:
+        log_queries_longer_than: 5s
+        compress_responses: true
+        tail_proxy_url: http://{{ include "loki.querierFullname" . }}:3100
+      
+      memberlist:
+        abort_if_cluster_join_fails: false
+        bind_port: 7946
+        join_members:
+        - loki-gossip-ring.loki.svc.cluster.local:7946
+        max_join_backoff: 1m
+        max_join_retries: 10
+        min_join_backoff: 1s
+
+      schema_config:
+        configs:
+        - from: 2020-05-15
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: loki_index_
+            period: 24h
+      
+      storage_config:
+        boltdb_shipper:
+          active_index_directory: /var/loki/index
+          cache_location: /var/loki/index_cache
+          shared_store: filesystem
+          cache_ttl: 168h
+        filesystem:
+          directory: /var/loki/chunks
+      
+      limits_config:
+        enforce_metric_name: false
+        reject_old_samples: false
+        reject_old_samples_max_age: 168h
