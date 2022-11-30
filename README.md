@@ -15,6 +15,8 @@ Additionally, an echo service and a log generator will be deployed automatically
 
 ## Usage
 
+### Init
+
 The start-up script will create a Kind cluster named `kindred`, with three nodes. **Make sure you have Kind installed on your machine.**
 
 To initialize the whole KindRed of services, run:
@@ -26,6 +28,21 @@ Otherwise, if you want to select only the services you need, run:
     ./start.sh
 
 And follow the instructions prompted.
+
+### Observability
+
+If you include Grafana in the installation, you can access the UI to view logs from the Loki data source and build dashboards.
+
+Simply expose the Grafana service port:
+
+    kubectl port-forward service/grafana 3000:80
+
+Navigate to `localhost:3000`, and use the following credentials to log in Grafana as an administrator:
+
+- username: `kindredadmin`
+- password: `kindredpwd`
+
+### Shutdown
 
 To delete the cluster, simply run:
 
