@@ -21,10 +21,13 @@ else
     kubectl apply -f envoy-proxy/standard -n kindred
 fi
 
-kubectl apply -f envoy-proxy/envoy.deployment.yaml -n kindred
-kubectl apply -f envoy-proxy/envoy.svc.yaml -n kindred
-kubectl apply -f echo-server -n kindred
+kubectl apply -f envoy-proxy/envoy.deployment.yaml
+kubectl apply -f envoy-proxy/envoy.svc.yaml
+kubectl apply -f echo-server
+kubectl apply -f nginx-logger
 
 helm install --namespace loki --create-namespace loki charts/loki -f charts/loki/values.yaml
+helm install --namespace grafana --create-namespace grafana charts/grafana -f charts/grafana/values.yaml
+helm install --namespace opentelemetry --create-namespace opentelemetry charts/opentelemetry-collector -f charts/opentelemetry-collector/values.yaml
 
 kubectl ns kindred

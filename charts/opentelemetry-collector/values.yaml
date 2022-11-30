@@ -1,0 +1,96 @@
+collector:  
+  image:
+    tag: "0.66.0"
+  mode: daemonset
+  presets:
+    logsCollection:
+      enabled: true
+      includeCollectorLogs: false
+  
+  config:
+    receivers:
+      # otlp:
+      #   protocols:
+      #     http: {}
+      #     grpc: {}
+      # fluentforward:
+      #   endpoint: logging-logging-operator-fluentd.logging.svc.cluster.local:24240
+      filelog:
+        include: [/var/log/pods/**/*.log]
+
+    exporters:
+      logging:
+        logLevel: warn
+      loki:
+        endpoint: http://loki-gateway.loki/loki/api/v1/push
+        tls:
+          insecure: true
+        headers:
+          "X-Scope-OrgID": "kindred"
+        # labels:
+        #   attributes:
+        #     k8s.container.name: "container_name"
+    processors:
+      k8sattributes:
+        passthrough: false
+        auth_type: "kubeConfig"
+        extract:
+          metadata:
+          - k8s.pod.name
+          - k8s.pod.uid
+          - k8s.deployment.name
+          - k8s.namespace.name
+          - k8s.node.name
+          - k8s.pod.start_time
+          annotations:
+          - tag_name: pod_annotation
+            key: some-annotation
+            from: pod
+          labels:
+          - tag_name: f4
+            key: f4
+            from: pod
+          - tag_name: namespace_label
+            key: some-namespace-label
+            from: namespace
+        filter:
+          namespace: acme
+        pod_association:
+        - sources:
+          - from: resource_attribute
+            name: k8s.pod.name
+        - sources:
+          - from: resource_attribute
+            name: k8s.namespace.name
+      attributes:
+        actions:
+        - action: insert
+          key: container_name
+          from_attribute: k8s.container.name
+        - action: insert
+          key: pod_name
+          from_attribute: k8s.pod.name
+        - action: insert
+          key: namespace
+          from_attribute: k8s.namespace.name
+        - action: insert
+          key: loki.attribute.labels
+          value: container_name, pod_name, namespace
+        - action: insert
+          key: loki.resource.labels
+          value: namespace_label
+      resource:
+        attributes:
+        - action: insert
+          key: loki.resource.labels
+          value: pod_annotation, f4
+      batch: {}
+
+    extensions: {}
+
+    service:
+      pipelines:
+        logs:
+          receivers: [filelog]
+          processors: [k8sattributes, attributes, resource]
+          exporters: [loki]

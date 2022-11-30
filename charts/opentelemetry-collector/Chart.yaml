@@ -1,0 +1,14 @@
+apiVersion: v2
+name: otelcollector
+version: 1.0.0
+kubeVersion: ">= 1.16.0-0"
+description: "OpenTelemetry Collector"
+type: application
+home: https://www.mia-platform.eu
+dependencies:
+  - name: opentelemetry-collector
+    alias: collector
+    version: 0.34.0
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+icon: https://www.mia-platform.eu/static/img/logo.svg
+deprecated: false

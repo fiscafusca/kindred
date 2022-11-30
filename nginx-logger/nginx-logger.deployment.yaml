@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: acme-kindred
+  labels:
+    some-namespace-label: acme-kindred-label
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  namespace: acme-kindred
+  name: nginx-logger
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx-logger
+  replicas: 1
+  template:
+    metadata:
+      labels:   
+        app.kubernetes.io/name: nginx-logger
+        type: log-generator
+        f4: basito
+      annotations:
+        some-annotation: dummy-annotation-value 
+    spec:
+      containers:
+      - name: nginx
+        image: banzaicloud/log-generator:0.3.2
