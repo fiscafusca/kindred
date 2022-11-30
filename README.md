@@ -35,7 +35,7 @@ If you include Grafana in the installation, you can access the UI to view logs f
 
 Simply expose the Grafana service port:
 
-    kubectl port-forward service/grafana 3000:80
+    kubectl port-forward -n grafana service/grafana 3000:80
 
 Navigate to `localhost:3000`, and use the following credentials to log in Grafana as an administrator:
 
