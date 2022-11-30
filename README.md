@@ -29,4 +29,4 @@ And follow the instructions prompted.
 
 To delete the cluster, simply run:
 
-    kind delete cluster --name red
+    kind delete cluster --name kindred
