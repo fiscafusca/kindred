@@ -35,7 +35,7 @@ fi
 
 if [ $LOKI = "y" ]; then
     printf "\nInstalling Loki...\n"
-    helm install --namespace logging --create-namespace logging charts/loki -f charts/loki/values.yaml
+    helm install --namespace loki --create-namespace loki charts/loki -f charts/loki/values.yaml
 fi
 
 if [ $GRAFANA = "y" ]; then

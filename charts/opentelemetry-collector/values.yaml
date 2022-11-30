@@ -54,7 +54,7 @@ collector:
             key: some-namespace-label
             from: namespace
         filter:
-          namespace: acme
+          namespace: acme-kindred
         pod_association:
         - sources:
           - from: resource_attribute
