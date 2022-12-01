@@ -14,6 +14,7 @@ while getopts 'a' OPTION; do
             GRAFANA="y"
             OTEL="y"
             ENVOY="y"
+            JSONLOGGER="y"
             ;;
         ?)
             echo "WTF? Script usage: $(basename $0) [-a]"
@@ -31,20 +32,25 @@ if [ $ALL = false ]; then
     read -p "Wanna install an OpenTelemetry collector (just for logs, atm)? [y/n]: " OTEL
     printf "\n"
     read -p "Wanna install an Envoy API Gateway? [y/n]: " ENVOY
+    printf "\n"
+    read -p "Wanna install a JSON logger? [y/n]: " ENVOY
 fi
 
 if [ $LOKI = "y" ]; then
     printf "\nInstalling Loki...\n"
+    helm dep up charts/loki
     helm install --namespace loki --create-namespace loki charts/loki -f charts/loki/values.yaml
 fi
 
 if [ $GRAFANA = "y" ]; then
     printf "\nInstalling Grafana...\n"
+    helm dep up charts/grafana
     helm install --namespace grafana --create-namespace grafana charts/grafana -f charts/grafana/values.yaml
 fi
 
 if [ $OTEL = "y" ]; then
     printf "\nInstalling the OpenTelemetry collector...\n"
+    helm dep up charts/opentelemetry-collector
     helm install --namespace opentelemetry --create-namespace opentelemetry charts/opentelemetry-collector -f charts/opentelemetry-collector/values.yaml
 fi
 
@@ -57,6 +63,14 @@ if [ $ENVOY = "y" ]; then
     kubectl apply -f envoy-proxy/minimal
     kubectl apply -f envoy-proxy/envoy.deployment.yaml
     kubectl apply -f envoy-proxy/envoy.svc.yaml
+fi
+
+if [ $JSONLOGGER = "y" ]; then
+    printf "\nDeploying a JSON logger...\n"
+    rm json-logger-random/json-logger.tar
+    docker build json-logger/ -t docker.io/library/json-logger:0.0.1
+    docker save docker.io/library/json-logger:0.0.1 -o json-logger/json-logger.tar
+    kind load image-archive json-logger/json-logger.tar
 fi
 
 printf "\nHere's an echo server and a log generator, just in case...\n"
