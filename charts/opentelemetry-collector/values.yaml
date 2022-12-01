@@ -90,15 +90,28 @@ collector:
             type: move
           - id: get-body-format
             routes:
-            - expr: body matches "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}" # check if the first element of the body is an IP address (nginx logs)
-              output: parser-nginx
+            - expr: |
+                body matches "^(?:[^ ]*) (?:[^ ]*) (?:[^ ]*) \\[(?:[^\\]]*)\\] \"(?:\\S+)(?: +(?:[^\"]*?)(?: +\\S*)?)?\" (?:[^ ]*) (?:[^ ]*)(?: \"(?:[^\"]*)\" \"(?:[^\"]*)\"(?:\\s+(?:[^ ]+))?)?$"
+              output: parser-nginx-default
+            - expr: |
+                body matches "^(?:[^ ]*) (?:[^ ]*) \\[(?:[^\\]]*)\\] \"(?:\\S+)(?: +(?:[^\"]*?) HTTP\\/(?:[^ ]*)?)?\" (?:[^ ]*) (?:[^ ]*)(?: \"(?:[^\"]*)\" \"(?:[^\"]*)\")? - (?:[^ ]*) - (?:[^ ]*)(\\n)?$"
+              output: parser-nginx-custom
+            default: catchall
             type: router
-          - id: parser-nginx
+          - id: parser-nginx-default
             type: regex_parser
             regex: "^(?P<remoteAddress>[^ ]*) (?P<remoteHostname>[^ ]*) (?P<user>[^ ]*) \\[(?P<time>[^\\]]*)\\] \"(?P<requestMethod>\\S+)(?: +(?P<requestURL>[^\"]*?)(?: +\\S*)?)?\" (?P<statusCode>[^ ]*) (?P<responseSize>[^ ]*)(?: \"(?P<HTTPReferer>[^\"]*)\" \"(?P<userAgent>[^\"]*)\"(?:\\s+(?P<http_x_forwarded_for>[^ ]+))?)?$"
             timestamp:
               parse_from: body.time
               layout: "%d/%b/%Y:%H:%M:%S %z"
+          - id: parser-nginx-custom
+            type: regex_parser
+            regex: "^(?P<remoteAddress>[^ ]*) (?P<remoteHostname>[^ ]*) \\[(?P<time>[^\\]]*)\\] \"(?P<requestMethod>\\S+)(?: +(?P<requestURL>[^\"]*?) HTTP\\/(?P<requestHTTPVersion>[^ ]*)?)?\" (?P<statusCode>[^ ]*) (?P<responseSize>[^ ]*)(?: \"(?P<HTTPReferer>[^\"]*)\" \"(?P<userAgent>[^\"]*)\")? - (?P<responseTime>[^ ]*) - (?P<reqId>[^ ]*)(\\n)?$"
+            timestamp:
+              parse_from: body.time
+              layout: "%Y-%m-%dT%H:%M:%S%z"
+          - id: catchall
+            type: noop
 
     exporters:
       logging:
