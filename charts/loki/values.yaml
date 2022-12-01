@@ -17,7 +17,7 @@ loki:
             kvstore:
               store: memberlist
             replication_factor: 1
-        chunk_idle_period: 5m
+        chunk_idle_period: 1h
         chunk_retain_period: 1m
         max_chunk_age: 10h
         max_transfer_retries: 0
@@ -53,6 +53,11 @@ loki:
           cache_ttl: 168h
         filesystem:
           directory: /var/loki/chunks
+        index_queries_cache_config:
+          memcached:
+            expiration: 9h
+          memcached_client:
+            addresses: dns+{{ .Release.Name }}-memcached-index-queries.{{ .Release.Namespace }}.svc:11211
       
       limits_config:
         enforce_metric_name: false
