@@ -1,5 +1,4 @@
-#!bin/bash
-
+#!/bin/sh
 while [ 1 ]; do
    waitTime=$(shuf -i 1-5 -n 1)
    sleep $waitTime &

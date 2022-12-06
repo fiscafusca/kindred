@@ -67,15 +67,14 @@ fi
 
 if [ $JSONLOGGER = "y" ]; then
     printf "\nDeploying a JSON logger...\n"
-    rm json-logger-random/json-logger.tar
-    docker build json-logger/ -t docker.io/library/json-logger:0.0.1
-    docker save docker.io/library/json-logger:0.0.1 -o json-logger/json-logger.tar
-    kind load image-archive json-logger/json-logger.tar
+    docker build utils/json-logger/ -t json-logger:0.0.1
+    kind load docker-image json-logger:0.0.1 --name kindred
+    kubectl apply -f log-generators/json
 fi
 
 printf "\nHere's an echo server and a log generator, just in case...\n"
 kubectl apply -f echo-server
-kubectl apply -f nginx-logger
+kubectl apply -f log-generators/nginx
 
 kubectl ns acme-kindred
 
