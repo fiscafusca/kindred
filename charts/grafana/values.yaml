@@ -13,3 +13,11 @@ grafana:
           httpHeaderName1: X-Scope-OrgID
         secureJsonData:
           httpHeaderValue1: kindred
+      - name: Tempo
+        type: tempo
+        url: http://tempo-gateway.tempo
+        access: proxy
+        jsonData:
+          httpHeaderName1: X-Scope-OrgID
+        secureJsonData:
+          httpHeaderValue1: kindred
