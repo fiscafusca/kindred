@@ -6,9 +6,10 @@ A Kind cluster with its small fam of tools from the open source community, for P
 
 Here's the list of the services that are available in this repo:
 
-- [Loki](https://grafana.com/oss/loki/)
 - [Grafana](https://grafana.com/grafana/)
-- [OpenTelemetry](https://opentelemetry.io/) (work in progress, just for the logs at the moment)
+- [OpenTelemetry](https://opentelemetry.io/) (for logs and traces)
+- [Loki](https://grafana.com/oss/loki/)
+- [Tempo](https://grafana.com/oss/tempo/)
 - [Envoy](https://www.envoyproxy.io/) (the configuration provided deploys a minimal API Gateway connected to an echo service)
 
 Additionally, an echo service and a log generator will be deployed automatically at every start-up.
