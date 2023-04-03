@@ -34,3 +34,16 @@ data:
                 socket_address:
                   address: sloth-service
                   port_value: 8081
+    - "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+      name: opentelemetry
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: opentelemetry
+        endpoints:
+        - lb_endpoints:
+          - endpoint:
+              address:
+                socket_address:
+                  address: opentelemetry-collector.opentelemetry.svc.cluster.local
+                  port_value: 9411

@@ -6,8 +6,8 @@ metadata:
 data:
   envoy.yaml: |-
     node:
-      cluster: kindergarten
-      id: kindergarten
+      cluster: envoy-kindred
+      id: envoy-kindred
 
     dynamic_resources:
       lds_config:
