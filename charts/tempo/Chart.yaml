@@ -1,0 +1,17 @@
+apiVersion: v2
+name: tempo-distributed
+description: Helm chart for Grafana Tempo in microservices mode
+type: application
+appVersion: 2.0.1
+version: 1.2.8
+home: https://grafana.github.io/helm-charts
+dependencies:
+  - name: "tempo-distributed"
+    version: 1.2.8
+    repository: https://grafana.github.io/helm-charts
+    alias: tempo
+sources:
+  - https://github.com/grafana/tempo
+  - https://grafana.com/oss/tempo/
+  - https://grafana.com/docs/tempo/latest/
+icon: https://grafana.com/docs/tempo/latest/logo_and_name.png

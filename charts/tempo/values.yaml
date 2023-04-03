@@ -1,0 +1,18 @@
+tempo:
+  searchEnabled: true
+
+  distributor:
+    config:
+      log_received_spans:
+        enabled: true
+        include_all_attributes: true
+        filter_by_status_error: true
+    receivers:
+      zipkin:
+      
+  traces:
+    zipkin:
+      enabled: true
+    otlp:
+      http:
+        enabled: true
