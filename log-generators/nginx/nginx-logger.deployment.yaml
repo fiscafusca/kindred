@@ -19,4 +19,4 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: banzaicloud/log-generator:0.3.2
+        image: kscarlett/nginx-log-generator:latest
