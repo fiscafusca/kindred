@@ -1,7 +1,5 @@
 collector:  
-  image:
-    tag: "0.66.0"
-  mode: daemonset
+  mode: deployment
   presets:
     logsCollection:
       enabled: true
@@ -9,12 +7,6 @@ collector:
   
   config:
     receivers:
-      # otlp:
-      #   protocols:
-      #     http: {}
-      #     grpc: {}
-      # fluentforward:
-      #   endpoint: logging-logging-operator-fluentd.logging.svc.cluster.local:24240
       filelog:
         include: [/var/log/pods/**/*.log]
         operators:
@@ -96,7 +88,7 @@ collector:
             - expr: |
                 body matches "^(?:[^ ]*) (?:[^ ]*) \\[(?:[^\\]]*)\\] \"(?:\\S+)(?: +(?:[^\"]*?) HTTP\\/(?:[^ ]*)?)?\" (?:[^ ]*) (?:[^ ]*)(?: \"(?:[^\"]*)\" \"(?:[^\"]*)\")? - (?:[^ ]*) - (?:[^ ]*)(\\n)?$"
               output: parser-nginx-custom
-            default: catchall
+            # default: catchall
             type: router
           - id: parser-nginx-default
             type: regex_parser
@@ -110,21 +102,24 @@ collector:
             timestamp:
               parse_from: body.time
               layout: "%Y-%m-%dT%H:%M:%S%z"
-          - id: catchall
-            type: noop
+          # TODO: enable noop catchall operator
+          # - id: catchall
+          #   type: noop
+      zipkin:
+        endpoint: 0.0.0.0:9411
 
     exporters:
-      logging:
-        logLevel: warn
       loki:
         endpoint: http://loki-gateway.loki/loki/api/v1/push
         tls:
           insecure: true
         headers:
           "X-Scope-OrgID": "kindred"
-        # labels:
-        #   attributes:
-        #     k8s.container.name: "container_name"
+      otlphttp:
+        endpoint: http://tempo-distributor.tempo:4318
+        headers:
+          "X-Scope-OrgID": "kindred"
+
     processors:
       k8sattributes:
         passthrough: false
@@ -155,6 +150,7 @@ collector:
         - sources:
           - from: resource_attribute
             name: k8s.namespace.name
+
       attributes:
         actions:
         - action: insert
@@ -172,6 +168,11 @@ collector:
         - action: insert
           key: loki.resource.labels
           value: namespace_label, pod_annotation, f4
+      resource:
+        attributes:
+        - action: insert
+          key: loki.tenant
+          value: namespace_label
       batch: {}        
             
     extensions: {}
@@ -182,3 +183,7 @@ collector:
           receivers: [filelog]
           processors: [k8sattributes, attributes]
           exporters: [loki]
+        traces:
+          receivers: [zipkin]
+          processors: []
+          exporters: [otlphttp]
