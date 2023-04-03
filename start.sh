@@ -10,9 +10,10 @@ while getopts 'a' OPTION; do
         a)
             echo "Ok, I'm installing the whole KindRed (-a option)."
             ALL=true
-            LOKI="y"
             GRAFANA="y"
             OTEL="y"
+            LOKI="y"
+            TEMPO="y"
             ENVOY="y"
             JSONLOGGER="y"
             ;;
@@ -25,21 +26,17 @@ done
 
 if [ $ALL = false ]; then
     printf "\n"
-    read -p "Wanna install Loki? [y/n]: " LOKI
+    read -p "Install Grafana? [y/n]: " GRAFANA
     printf "\n"
-    read -p "Wanna install Grafana? [y/n]: " GRAFANA
+    read -p "Install an OpenTelemetry collector (for logs and tracing)? [y/n]: " OTEL
     printf "\n"
-    read -p "Wanna install an OpenTelemetry collector (just for logs, atm)? [y/n]: " OTEL
+    read -p "Install Loki? [y/n]: " LOKI
     printf "\n"
-    read -p "Wanna install an Envoy API Gateway? [y/n]: " ENVOY
+    read -p "Install Tempo? [y/n]: " TEMPO
     printf "\n"
-    read -p "Wanna install a JSON logger? [y/n]: " ENVOY
-fi
-
-if [ $LOKI = "y" ]; then
-    printf "\nInstalling Loki...\n"
-    helm dep up charts/loki
-    helm install --namespace loki --create-namespace loki charts/loki -f charts/loki/values.yaml
+    read -p "Install an Envoy API Gateway? [y/n]: " ENVOY
+    printf "\n"
+    read -p "Install a JSON logger? [y/n]: " JSONLOGGER
 fi
 
 if [ $GRAFANA = "y" ]; then
@@ -54,9 +51,21 @@ if [ $OTEL = "y" ]; then
     helm install --namespace opentelemetry --create-namespace opentelemetry charts/opentelemetry-collector -f charts/opentelemetry-collector/values.yaml
 fi
 
+if [ $LOKI = "y" ]; then
+    printf "\nInstalling Loki...\n"
+    helm dep up charts/loki
+    helm install --namespace loki --create-namespace loki charts/loki -f charts/loki/values.yaml
+fi
+
+if [ $TEMPO = "y" ]; then
+    printf "\nInstalling Tempo...\n"
+    helm dep up charts/tempo
+    helm install --namespace tempo --create-namespace tempo charts/tempo -f charts/tempo/values.yaml
+fi
+
 printf "\nCreating the acme-kindred namespace...\n"
 kubectl create namespace acme-kindred
-kubectl label namespace acme-kindred some-namespace-label=acme-kindred-label
+kubectl label namespace acme-kindred some-namespace-label=kindred
 
 if [ $ENVOY = "y" ]; then
     printf "\nDeploying a minimal Envoy configuration...\n"
