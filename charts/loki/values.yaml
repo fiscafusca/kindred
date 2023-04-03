@@ -1,7 +1,7 @@
 loki:
   loki:
     config: |
-      auth_enabled: false
+      auth_enabled: true
 
       server:
         http_listen_port: 3100
